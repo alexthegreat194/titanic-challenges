@@ -1,5 +1,7 @@
 // ================================================================
 
+const res = require("express/lib/response")
+
 // Titanic Dataset challenges! 
 
 // Your goal is to write some functions that will extract
@@ -25,7 +27,7 @@
 // Or if property = 'age' -> [40, 26, 22, 28, 23, 45, 21, ...]
 
 const getAllValuesForProperty = (data, property) => {
-	return []
+	return data.map(p => p.fields[property])
 }
 
 // 2 -------------------------------------------------------------
@@ -34,7 +36,7 @@ const getAllValuesForProperty = (data, property) => {
 // array of all the male passengers [{...}, {...}, {...}, ...]
 
 const filterByProperty = (data, property, value) => {
-	return []
+	return data.filter(p => p.fields[property] == value)
 }
 
 // 3 -------------------------------------------------------------
@@ -43,7 +45,7 @@ const filterByProperty = (data, property, value) => {
 // given property have been removed
 
 const filterNullForProperty = (data, property) => {
-	return []
+	return data.filter(p => p.fields[property] != undefined)
 }
 
 // 4 -------------------------------------------------------------
@@ -52,7 +54,7 @@ const filterNullForProperty = (data, property) => {
 // Return the total of all values for a given property. This
 
 const sumAllProperty = (data, property) => {
-	return 0
+	return data.filter(p => p.fields[property] !== undefined).reduce((acc, p) => acc + p.fields[property], 0)
 }
 
 
@@ -67,7 +69,15 @@ const sumAllProperty = (data, property) => {
 // at Cherbourg, 77 emabrked at Queenstown, and 2 are undedfined
 
 const countAllProperty = (data, property) => {
-	return {}
+	return data.reduce((acc, p) => {
+		const value = p.fields[property]
+		if (acc[value] == undefined) {
+			acc[value] = 1
+		} else {
+			acc[value] += 1
+		}
+		return acc
+	}, {})
 }
 
 
@@ -80,7 +90,20 @@ const countAllProperty = (data, property) => {
 // ages 0 - 10, 10 - 20, 20 - 30 etc. 
 
 const makeHistogram = (data, property, step) => {
-	return []
+	results = data
+		.filter(p => p.fields[property] !== undefined)
+		.reduce((acc, p) => {
+			const value = p.fields[property]
+			const index = Math.floor(value / step)
+			if (acc[index] == undefined) {
+				acc[index] = 1
+			} else {
+				acc[index] += 1
+			}
+			return acc
+		}, [])
+
+	return Array.from(results, (value, index) => value || 0)
 }
 
 // 7 ------------------------------------------------------------
@@ -89,7 +112,7 @@ const makeHistogram = (data, property, step) => {
 // to divide each value by the maximum value in the array.
 
 const normalizeProperty = (data, property) => {
-	return []
+	return data.filter(p => p.fields[property] !== undefined).map(p => p.fields[property] / Math.max(...data.filter(p => p.fields[property] !== undefined).map(p => p.fields[property])))
 }
 
 // 8 ------------------------------------------------------------
@@ -100,7 +123,11 @@ const normalizeProperty = (data, property) => {
 // would return ['male', 'female']
 
 const getUniqueValues = (data, property) => {
-	return []
+	const results = data.filter(p => p.fields[property] !== undefined).reduce((acc, p) => {
+		acc.add(p.fields[property])
+		return acc
+	}, new Set())
+	return Array.from(results, (value, index) => value)
 }
 
 // --------------------------------------------------------------
